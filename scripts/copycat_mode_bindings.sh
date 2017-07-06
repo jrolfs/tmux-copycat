@@ -22,9 +22,17 @@ extend_key() {
 copycat_cancel_bindings() {
 	# keys that quit copy mode are enhanced to quit copycat mode as well.
 	local cancel_mode_bindings=$(copycat_quit_copy_mode_keys)
+        local yank_mode_mindings=$(copycat_quit_yank_mode_keys)
+
 	local key
+
 	for key in $cancel_mode_bindings; do
 		extend_key "$key" "$CURRENT_DIR/copycat_mode_quit.sh"
+	done
+
+	for key in $yank_mode_mindings; do
+                local existing_command=$(tmux list-keys -T copy-mode-vi | grep "copy-mode-vi ${key}" | sed 's/^.*send-keys \-X //')
+		tmux bind-key -T copy-mode-vi "$key" run-shell "$CURRENT_DIR/copycat_mode_quit.sh" \\\; "$existing_command"
 	done
 }
 

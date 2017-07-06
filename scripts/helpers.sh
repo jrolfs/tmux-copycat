@@ -150,17 +150,23 @@ copycat_prev_key() {
 
 # function expected output: 'C-c Enter q'
 copycat_quit_copy_mode_keys() {
-	local commands_that_quit_copy_mode="cancel\|copy-selection\|copy-pipe"
-	local copy_mode="$(tmux_copy_mode)-copy"
-	tmux list-keys -t "$copy_mode" |
-		\grep "$commands_that_quit_copy_mode" |
+	_copycat_list_quit_copy_mode_keys "[[:blank:]]cancel"
+}
+
+copycat_quit_yank_mode_keys() {
+	_copycat_list_quit_copy_mode_keys "copy-pipe-and-cancel"
+}
+
+# === 'private' functions ===
+
+_copycat_list_quit_copy_mode_keys() {
+	tmux list-keys -T copy-mode-vi |
+		\grep "$1" |
 		$AWK_CMD '{ print $4}' |
 		sort -u |
 		sed 's/C-j//g' |
 		xargs echo
 }
-
-# === 'private' functions ===
 
 _copycat_mode_var() {
 	local pane_id="$(_pane_unique_id)"
